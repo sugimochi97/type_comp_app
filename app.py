@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 
 df_type_comp = pd.read_csv('type_comp.csv')
-dict_type = {}
-type_list = df_type_comp.index
+df_type_single = pd.read_csv('type_comp_single.csv')
+type_dict = dict(zip(df_type_comp.columns, df_type_single.columns))
 
 def check_comp(attack_type, defence_type):
     comp = df_type_comp[defence_type][attack_type]
@@ -27,5 +27,14 @@ def party_type_check(party_type_list):
     print('不足タイプ→', lacks)
     return types, lacks
 
-st.selectbox('あいうえお', df_type_comp.index)
-st.write(df_type_comp.index)
+st.write('# パーティーに含まれるタイプを選択してください。')
+select_types = st.multiselect('選択↓', df_type_comp.index)
+types, lacks = party_type_check(select_types)
+st.markdown("# 効果抜群にできないタイプ")
+st.write(' / '.join(types))
+st.markdown("# 不足しているタイプ")
+st.write(' / '.join(lacks))
+types = [type_dict[key] for key in types]
+lacks = [type_dict[key] for key in lacks]
+st.markdown("# 参考用タイプ相性表")
+st.dataframe(df_type_single[types].loc[lacks])
